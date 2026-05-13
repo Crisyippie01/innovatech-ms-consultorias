@@ -236,3 +236,8 @@ mvn spring-boot:run
 ## Licencia
 
 Proyecto desarrollado para InnovaTech - Todos los derechos reservados.
+
+## Integración con BFF
+- Ruta base consumida: /api/v1/consultorias
+- Healthcheck: /actuator/health
+
