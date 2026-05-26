@@ -25,10 +25,10 @@ public class ConsultoriaService {
     private final ConsultoriaRepository consultoriaRepository;
     private final RabbitTemplate rabbitTemplate;
 
-    @Value("${rabbitmq.exchange.consultoria:consultoria.exchange}")
+    @Value("${rabbitmq.exchange.name}")
     private String exchangeName;
 
-    @Value("${rabbitmq.routingkey.consultoria:consultoria.routingkey}")
+    @Value("${rabbitmq.routing.key}")
     private String routingKey;
 
     @Transactional

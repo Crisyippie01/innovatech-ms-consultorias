@@ -59,8 +59,8 @@ java -jar -Dspring.profiles.active=prod target/ms-consultorias-0.0.1-SNAPSHOT.ja
 | `SERVER_PORT` | Puerto del servidor | 8086 |
 | `RABBITMQ_HOST` | Host de RabbitMQ | localhost |
 | `RABBITMQ_PORT` | Puerto de RabbitMQ | 5672 |
-| `RABBITMQ_USER` | Usuario RabbitMQ | guest |
-| `RABBITMQ_PASS` | Contrase帽a RabbitMQ | guest |
+| `RABBITMQ_USERNAME` | Usuario RabbitMQ | rabbit_local_user |
+| `RABBITMQ_PASSWORD` | Contrase帽a RabbitMQ | rabbit_local_password |
 
 ### RabbitMQ con Docker
 
@@ -71,7 +71,7 @@ docker run -d --name rabbitmq \
   rabbitmq:3-management
 ```
 
-Consola de administraci贸n: http://localhost:15672 (guest/guest)
+Consola de administraci贸n: http://localhost:15672 
 
 ## Endpoints API
 
@@ -208,7 +208,7 @@ com.innovatech.ms_consultorias/
 
 ### Producci贸n (MySQL)
 - **Base de Datos**: `consultorias_db`
-- **DDL**: `update` (solo actualiza, no elimina datos)
+- **DDL**: `validate`
 
 ## Compilaci贸n y Ejecuci贸n
 
@@ -240,4 +240,5 @@ Proyecto desarrollado para InnovaTech - Todos los derechos reservados.
 ## Integraci髇 con BFF
 - Ruta base consumida: /api/v1/consultorias
 - Healthcheck: /actuator/health
+
 
