@@ -1,5 +1,15 @@
 # innovatech-ms-consultorias
 
+## Estado de evidencia
+
+| Categoria | Estado |
+|---|---|
+| Implementado | CRUD de consultorias, productor RabbitMQ, Actuator |
+| Configurado | MySQL/H2, RabbitMQ, perfiles, Docker |
+| Validado | compilacion |
+| Pendiente de validacion runtime | publicacion real del evento y stack completo |
+| No evidenciado | consumidor oficial de `Consultoria_Solicitada` |
+
 ## 1. Descripcion general
 `innovatech-ms-consultorias` es el microservicio encargado de registrar solicitudes de consultoria, consultar historiales por usuario y actualizar estados de atencion dentro de InnovaTech.
 
