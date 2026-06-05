@@ -102,6 +102,7 @@ Riesgos o pendientes:
 - Depende del Gateway: el flujo oficial es via Gateway, aunque el servicio tambien protege sus endpoints.
 - Endpoints publicos: `GET /actuator/health`, `GET /actuator/info`, Swagger/OpenAPI solo cuando `APP_SECURITY_DOCS_PUBLIC=true`.
 - Endpoints protegidos: los endpoints `/api/v1/consultorias/**`.
+- Cambio de estado: `PATCH /api/v1/consultorias/{id}/estado/{estado}` requiere rol `ADMIN` o `CONSULTOR`.
 - Riesgos detectados:
   - Si se expone directamente fuera de la red interna, el servicio seguiria recibiendo trafico sin pasar por el Gateway.
   - La apertura de documentacion depende de perfil y variable de entorno.
