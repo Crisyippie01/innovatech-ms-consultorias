@@ -12,27 +12,35 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/consultorias")
 @RequiredArgsConstructor
-@Tag(name = "Consultorías", description = "API para gestión de consultorías")
+@Validated
+@Tag(name = "Consultorias", description = "API para gestion de consultorias")
 public class ConsultoriaController {
 
     private final ConsultoriaService consultoriaService;
 
-    @Operation(summary = "Registrar nueva consultoría", description = "Crea una nueva solicitud de consultoría y emite evento Consultoria_Solicitada")
+    @Operation(summary = "Registrar nueva consultoria", description = "Crea una nueva solicitud de consultoria")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Consultoría creada exitosamente",
+            @ApiResponse(responseCode = "201", description = "Consultoria creada exitosamente",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ConsultoriaResponseDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Error de validación en los datos de entrada"),
+            @ApiResponse(responseCode = "400", description = "Error de validacion en los datos de entrada"),
             @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     @PostMapping
@@ -42,65 +50,69 @@ public class ConsultoriaController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @Operation(summary = "Obtener consultoría por ID", description = "Recupera los detalles de una consultoría específica")
+    @Operation(summary = "Obtener consultoria por ID", description = "Recupera los detalles de una consultoria especifica")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Consultoría encontrada",
+            @ApiResponse(responseCode = "200", description = "Consultoria encontrada",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ConsultoriaResponseDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Consultoría no encontrada"),
+            @ApiResponse(responseCode = "404", description = "Consultoria no encontrada"),
             @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     @GetMapping("/{id}")
     public ResponseEntity<ConsultoriaResponseDTO> obtenerConsultoria(
-            @Parameter(description = "ID de la consultoría") @PathVariable Long id) {
+            @Parameter(description = "ID de la consultoria")
+            @PathVariable @Positive(message = "El id debe ser mayor a cero") Long id) {
         ConsultoriaResponseDTO response = consultoriaService.obtenerConsultoriaPorId(id);
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "Listar consultorías por usuario", description = "Obtiene el historial de consultorías de un usuario específico")
+    @Operation(summary = "Listar consultorias por usuario", description = "Obtiene el historial de consultorias de un usuario")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Lista de consultorías recuperada exitosamente",
+            @ApiResponse(responseCode = "200", description = "Lista de consultorias recuperada exitosamente",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ConsultoriaResponseDTO.class))),
             @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     @GetMapping("/usuario/{usuarioId}")
     public ResponseEntity<List<ConsultoriaResponseDTO>> listarConsultoriasPorUsuario(
-            @Parameter(description = "ID del usuario") @PathVariable Long usuarioId) {
+            @Parameter(description = "ID del usuario")
+            @PathVariable @Positive(message = "El usuarioId debe ser mayor a cero") Long usuarioId) {
         List<ConsultoriaResponseDTO> response = consultoriaService.listarConsultoriasPorUsuario(usuarioId);
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "Listar consultorías por usuario y estado", description = "Filtra consultorías de un usuario por estado específico")
+    @Operation(summary = "Listar consultorias por usuario y estado", description = "Filtra consultorias de un usuario por estado")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Lista de consultorías filtrada exitosamente",
+            @ApiResponse(responseCode = "200", description = "Lista de consultorias filtrada exitosamente",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ConsultoriaResponseDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Estado inválido"),
+            @ApiResponse(responseCode = "400", description = "Estado invalido"),
             @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     @GetMapping("/usuario/{usuarioId}/estado/{estado}")
     public ResponseEntity<List<ConsultoriaResponseDTO>> listarConsultoriasPorUsuarioYEstado(
-            @Parameter(description = "ID del usuario") @PathVariable Long usuarioId,
-            @Parameter(description = "Estado de la consultoría (PENDIENTE, APROBADA, FINALIZADA, CANCELADA)")
+            @Parameter(description = "ID del usuario")
+            @PathVariable @Positive(message = "El usuarioId debe ser mayor a cero") Long usuarioId,
+            @Parameter(description = "Estado de la consultoria")
             @PathVariable EstadoConsultoria estado) {
         List<ConsultoriaResponseDTO> response = consultoriaService.listarConsultoriasPorUsuarioYEstado(usuarioId, estado);
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "Actualizar estado de consultoría", description = "Cambia el estado de una consultoría existente")
+    @Operation(summary = "Actualizar estado de consultoria", description = "Cambia el estado de una consultoria existente")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Estado actualizado exitosamente",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ConsultoriaResponseDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Consultoría no encontrada"),
-            @ApiResponse(responseCode = "400", description = "Estado inválido"),
+            @ApiResponse(responseCode = "404", description = "Consultoria no encontrada"),
+            @ApiResponse(responseCode = "400", description = "Estado invalido"),
             @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     @PatchMapping("/{id}/estado/{estado}")
     public ResponseEntity<ConsultoriaResponseDTO> actualizarEstado(
-            @Parameter(description = "ID de la consultoría") @PathVariable Long id,
-            @Parameter(description = "Nuevo estado (PENDIENTE, APROBADA, FINALIZADA, CANCELADA)")
+            @Parameter(description = "ID de la consultoria")
+            @PathVariable @Positive(message = "El id debe ser mayor a cero") Long id,
+            @Parameter(description = "Nuevo estado")
             @PathVariable EstadoConsultoria estado) {
         ConsultoriaResponseDTO response = consultoriaService.actualizarEstado(id, estado);
         return ResponseEntity.ok(response);
