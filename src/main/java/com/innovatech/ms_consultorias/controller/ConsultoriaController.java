@@ -3,6 +3,8 @@ package com.innovatech.ms_consultorias.controller;
 import com.innovatech.ms_consultorias.dto.request.ConsultoriaRequestDTO;
 import com.innovatech.ms_consultorias.dto.response.ConsultoriaResponseDTO;
 import com.innovatech.ms_consultorias.model.enums.EstadoConsultoria;
+import com.innovatech.ms_consultorias.security.AuthenticatedUser;
+import com.innovatech.ms_consultorias.security.SecurityUtils;
 import com.innovatech.ms_consultorias.service.ConsultoriaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -17,6 +19,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -24,6 +27,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -34,6 +38,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ConsultoriaController {
 
     private final ConsultoriaService consultoriaService;
+    private final SecurityUtils securityUtils;
 
     @Operation(summary = "Registrar nueva consultoria", description = "Crea una nueva solicitud de consultoria")
     @ApiResponses(value = {
@@ -45,8 +50,10 @@ public class ConsultoriaController {
     })
     @PostMapping
     public ResponseEntity<ConsultoriaResponseDTO> registrarConsultoria(
-            @Valid @RequestBody ConsultoriaRequestDTO requestDTO) {
-        ConsultoriaResponseDTO response = consultoriaService.registrarConsultoria(requestDTO);
+            @Valid @RequestBody ConsultoriaRequestDTO requestDTO,
+            Authentication authentication) {
+        AuthenticatedUser currentUser = securityUtils.requireUser(authentication);
+        ConsultoriaResponseDTO response = consultoriaService.registrarConsultoria(requestDTO, currentUser);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
@@ -61,8 +68,10 @@ public class ConsultoriaController {
     @GetMapping("/{id}")
     public ResponseEntity<ConsultoriaResponseDTO> obtenerConsultoria(
             @Parameter(description = "ID de la consultoria")
-            @PathVariable @Positive(message = "El id debe ser mayor a cero") Long id) {
-        ConsultoriaResponseDTO response = consultoriaService.obtenerConsultoriaPorId(id);
+            @PathVariable @Positive(message = "El id debe ser mayor a cero") Long id,
+            Authentication authentication) {
+        AuthenticatedUser currentUser = securityUtils.requireUser(authentication);
+        ConsultoriaResponseDTO response = consultoriaService.obtenerConsultoriaPorId(id, currentUser);
         return ResponseEntity.ok(response);
     }
 
@@ -76,9 +85,30 @@ public class ConsultoriaController {
     @GetMapping("/usuario/{usuarioId}")
     public ResponseEntity<List<ConsultoriaResponseDTO>> listarConsultoriasPorUsuario(
             @Parameter(description = "ID del usuario")
-            @PathVariable @Positive(message = "El usuarioId debe ser mayor a cero") Long usuarioId) {
-        List<ConsultoriaResponseDTO> response = consultoriaService.listarConsultoriasPorUsuario(usuarioId);
+            @PathVariable @Positive(message = "El usuarioId debe ser mayor a cero") Long usuarioId,
+            Authentication authentication) {
+        AuthenticatedUser currentUser = securityUtils.requireUser(authentication);
+        List<ConsultoriaResponseDTO> response = consultoriaService.listarConsultoriasPorUsuario(usuarioId, currentUser);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/mis")
+    public ResponseEntity<List<ConsultoriaResponseDTO>> listarMisConsultorias(Authentication authentication) {
+        AuthenticatedUser currentUser = securityUtils.requireUser(authentication);
+        return ResponseEntity.ok(consultoriaService.listarMisConsultorias(currentUser));
+    }
+
+    @GetMapping(params = "estado")
+    public ResponseEntity<List<ConsultoriaResponseDTO>> listarConsultoriasPorEstado(@RequestParam EstadoConsultoria estado) {
+        return ResponseEntity.ok(consultoriaService.listarConsultoriasPorEstado(estado));
+    }
+
+    @GetMapping("/usuario/{usuarioId}/historial")
+    public ResponseEntity<List<ConsultoriaResponseDTO>> listarHistorialPorUsuario(
+            @Parameter(description = "ID del usuario")
+            @PathVariable @Positive(message = "El usuarioId debe ser mayor a cero") Long usuarioId,
+            Authentication authentication) {
+        return listarConsultoriasPorUsuario(usuarioId, authentication);
     }
 
     @Operation(summary = "Listar consultorias por usuario y estado", description = "Filtra consultorias de un usuario por estado")
@@ -94,8 +124,10 @@ public class ConsultoriaController {
             @Parameter(description = "ID del usuario")
             @PathVariable @Positive(message = "El usuarioId debe ser mayor a cero") Long usuarioId,
             @Parameter(description = "Estado de la consultoria")
-            @PathVariable EstadoConsultoria estado) {
-        List<ConsultoriaResponseDTO> response = consultoriaService.listarConsultoriasPorUsuarioYEstado(usuarioId, estado);
+            @PathVariable EstadoConsultoria estado,
+            Authentication authentication) {
+        AuthenticatedUser currentUser = securityUtils.requireUser(authentication);
+        List<ConsultoriaResponseDTO> response = consultoriaService.listarConsultoriasPorUsuarioYEstado(usuarioId, estado, currentUser);
         return ResponseEntity.ok(response);
     }
 
@@ -113,8 +145,10 @@ public class ConsultoriaController {
             @Parameter(description = "ID de la consultoria")
             @PathVariable @Positive(message = "El id debe ser mayor a cero") Long id,
             @Parameter(description = "Nuevo estado")
-            @PathVariable EstadoConsultoria estado) {
-        ConsultoriaResponseDTO response = consultoriaService.actualizarEstado(id, estado);
+            @PathVariable EstadoConsultoria estado,
+            Authentication authentication) {
+        AuthenticatedUser currentUser = securityUtils.requireUser(authentication);
+        ConsultoriaResponseDTO response = consultoriaService.actualizarEstado(id, estado, currentUser);
         return ResponseEntity.ok(response);
     }
 }
