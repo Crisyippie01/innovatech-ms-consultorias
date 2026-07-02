@@ -18,7 +18,6 @@ import java.time.LocalDate;
 @Builder
 public class ConsultoriaRequestDTO {
 
-    @NotNull(message = "El ID del usuario es obligatorio")
     @Positive(message = "El ID del usuario debe ser mayor a cero")
     private Long usuarioId;
 

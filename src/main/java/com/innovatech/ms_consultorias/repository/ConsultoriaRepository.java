@@ -13,4 +13,6 @@ public interface ConsultoriaRepository extends JpaRepository<Consultoria, Long> 
     List<Consultoria> findByUsuarioId(Long usuarioId);
 
     List<Consultoria> findByUsuarioIdAndEstado(Long usuarioId, EstadoConsultoria estado);
+
+    List<Consultoria> findByEstado(EstadoConsultoria estado);
 }
